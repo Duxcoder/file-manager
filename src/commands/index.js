@@ -56,7 +56,10 @@ export const runCp = async ([pathFile, pathDir]) => {
   });
   writeStream.end();
 };
+export const runRm = async (path) => {
+  await rm(resolve(currentDirname.get(), path));
+};
 export const runMv = async ([pathFile, pathDir]) => {
   await runCp([pathFile, pathDir]);
-  await rm(resolve(currentDirname.get(), pathFile));
+  await runRm(pathFile);
 };

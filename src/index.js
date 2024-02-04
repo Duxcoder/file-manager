@@ -2,7 +2,17 @@ import { EOL } from 'node:os';
 import { isValidCommand } from './validation/index.js';
 import CurrentDirectory from './currentDirectory.js';
 import { USERNAME, CMD } from './settings.js';
-import { runUp, runCat, runCd, runLs, runAdd, runRn, runCp, runMv } from './commands/index.js';
+import {
+  runUp,
+  runCat,
+  runCd,
+  runLs,
+  runAdd,
+  runRn,
+  runCp,
+  runMv,
+  runRm,
+} from './commands/index.js';
 
 const currentDirname = new CurrentDirectory();
 
@@ -43,6 +53,9 @@ const runCommand = async (command, args) => {
       break;
     case CMD.mv:
       await runMv(args);
+      break;
+    case CMD.rm:
+      await runRm(args[0]);
       break;
   }
 };
