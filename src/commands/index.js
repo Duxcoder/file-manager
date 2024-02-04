@@ -10,7 +10,9 @@ import { OS_ARGS } from '../settings.js';
 const currentDirname = new CurrentDirectory();
 
 export const runUp = () => currentDirname.set(dirname(currentDirname.get()));
+
 export const runCd = (path) => currentDirname.set(resolve(currentDirname.get(), path));
+
 export const runLs = async () => {
   const fileList = [];
   try {
@@ -30,6 +32,7 @@ export const runLs = async () => {
   }
   console.table(fileList);
 };
+
 export const runCat = async (path) => {
   return new Promise(function (resolvePromise, reject) {
     const stream = createReadStream(resolve(currentDirname.get(), path));
@@ -43,30 +46,64 @@ export const runCat = async (path) => {
     });
   });
 };
+
 export const runAdd = async (path) => {
-  await writeFile(resolve(currentDirname.get(), path), '', { flag: 'ax+' });
+  try {
+    await writeFile(resolve(currentDirname.get(), path), '', { flag: 'ax+' });
+    console.log('file created successfully');
+  } catch (error) {
+    console.error(`Error create the file: ${error.message}`);
+  }
 };
+
 export const runRn = async ([oldPath, newPath]) => {
-  const oldName = resolve(currentDirname.get(), oldPath);
-  const newName = resolve(currentDirname.get(), newPath);
-  await rename(oldName, newName);
-  console.log('file renamed successfully');
+  try {
+    const oldName = resolve(currentDirname.get(), oldPath);
+    const newName = resolve(currentDirname.get(), newPath);
+    await rename(oldName, newName);
+    console.log('file renamed successfully');
+  } catch (error) {
+    console.error(`Error rename the file: ${error.message}`);
+  }
 };
+
 export const runCp = async ([pathFile, pathDir]) => {
-  const readStream = createReadStream(resolve(currentDirname.get(), pathFile));
-  const writeStream = createWriteStream(resolve(currentDirname.get(), pathDir, pathFile));
-  readStream.on('data', (chunk) => {
-    writeStream.write(chunk);
+  return new Promise(function (resolvePromise, reject) {
+    const readStream = createReadStream(resolve(currentDirname.get(), pathFile));
+    const writeStream = createWriteStream(resolve(currentDirname.get(), pathDir, pathFile));
+    readStream.on('data', (chunk) => {
+      writeStream.write(chunk);
+    });
+    readStream.on('end', () => {
+      console.log('File copied successfully');
+      resolvePromise();
+    });
+    readStream.on('error', (error) => {
+      console.error(`Error copy the file: ${error.message}`);
+      reject(error);
+    });
   });
-  writeStream.end();
 };
+
 export const runRm = async (path) => {
-  await rm(resolve(currentDirname.get(), path));
+  try {
+    await rm(resolve(currentDirname.get(), path));
+    console.log('File deleted successfully');
+  } catch (error) {
+    console.error(`Error delete the file: ${error.message}`);
+  }
 };
+
 export const runMv = async ([pathFile, pathDir]) => {
-  await runCp([pathFile, pathDir]);
-  await runRm(pathFile);
+  try {
+    await runCp([pathFile, pathDir]);
+    await runRm(pathFile);
+    console.log(`File ${pathFile} moved to ${pathDir}`);
+  } catch (error) {
+    console.error(`Error move the file: ${error.message}`);
+  }
 };
+
 const showCpus = () => {
   const cpus = os.cpus();
   const CPUS = cpus.length;
@@ -75,6 +112,7 @@ const showCpus = () => {
     console.log(`CPU #${i + 1}: model ${cpu.model} with ${cpu.speed} GHz`);
   });
 };
+
 export const runOs = async (arg) => {
   switch (arg) {
     case OS_ARGS.eol:
@@ -94,6 +132,7 @@ export const runOs = async (arg) => {
       break;
   }
 };
+
 export const runHash = async (path) => {
   return new Promise(function (resolvePromise, reject) {
     const readableStream = createReadStream(resolve(currentDirname.get(), path));
