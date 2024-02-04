@@ -1,4 +1,4 @@
-import { readdir, stat, writeFile, rename } from 'node:fs/promises';
+import { readdir, stat, writeFile, rename, rm } from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import CurrentDirectory from '../currentDirectory.js';
@@ -54,6 +54,9 @@ export const runCp = async ([pathFile, pathDir]) => {
   readStream.on('data', (chunk) => {
     writeStream.write(chunk);
   });
-
   writeStream.end();
+};
+export const runMv = async ([pathFile, pathDir]) => {
+  await runCp([pathFile, pathDir]);
+  await rm(resolve(currentDirname.get(), pathFile));
 };
