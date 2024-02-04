@@ -1,4 +1,5 @@
 import * as os from 'node:os';
+import { createHash } from 'node:crypto';
 import { readdir, stat, writeFile, rename, rm } from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -35,7 +36,7 @@ export const runCat = async (path) => {
       console.log(chunk.toString());
     });
     stream.on('end', resolvePromise);
-    stream.on('error', () => {
+    stream.on('error', (error) => {
       console.error(`Error reading the file: ${error.message}`);
       reject(error);
     });
@@ -91,4 +92,17 @@ export const runOs = async (arg) => {
       console.log(`Architecture: ${os.arch()}`);
       break;
   }
+};
+export const runHash = async (path) => {
+  return new Promise(function (resolvePromise, reject) {
+    const readableStream = createReadStream(resolve(currentDirname.get(), path));
+    readableStream.on('data', async (chunk) => {
+      console.log(await createHash('sha256').update(chunk).digest('hex'));
+    });
+    readableStream.on('end', resolvePromise);
+    readableStream.on('error', (error) => {
+      console.error(`Error hash the file: ${error.message}`);
+      reject(error);
+    });
+  });
 };
