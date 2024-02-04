@@ -1,6 +1,5 @@
-import { EOL } from 'node:os';
+import { EOL, homedir } from 'node:os';
 import { isValidCommand } from './validation/index.js';
-import CurrentDirectory from './currentDirectory.js';
 import { USERNAME, CMD } from './settings.js';
 import {
   runUp,
@@ -18,13 +17,12 @@ import {
   runDecompress,
 } from './commands/index.js';
 
-const currentDirname = new CurrentDirectory();
-
 const showCurrentDirectory = () => {
-  console.log(`You are currently in ${currentDirname.get()} ${EOL}`);
+  console.log(`You are currently in ${process.cwd()} ${EOL}`);
 };
 
 const initialApplication = () => {
+  process.chdir(homedir());
   console.log(`Welcome to the File Manager, ${USERNAME}!`);
   showCurrentDirectory();
 };

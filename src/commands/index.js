@@ -4,23 +4,19 @@ import { readdir, stat, writeFile, rename, rm } from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { createBrotliCompress, createBrotliDecompress } from 'node:zlib';
-import CurrentDirectory from '../currentDirectory.js';
 import { OS_ARGS } from '../settings.js';
-import { getNameFile } from '../utils/inedx.js';
+import { getNameFile } from '../utils/index.js';
+export const runUp = () => process.chdir(dirname(process.cwd()));
 
-const currentDirname = new CurrentDirectory();
-
-export const runUp = () => currentDirname.set(dirname(currentDirname.get()));
-
-export const runCd = (path) => currentDirname.set(resolve(currentDirname.get(), path));
+export const runCd = (path) => process.chdir(resolve(process.cwd(), path));
 
 export const runLs = async () => {
   const fileList = [];
   try {
-    const files = await readdir(currentDirname.get());
+    const files = await readdir(process.cwd());
 
     for (const file of files) {
-      const filePath = resolve(currentDirname.get(), file);
+      const filePath = resolve(process.cwd(), file);
       const fileStats = await stat(filePath);
       const fileItem = {
         Name: file,
@@ -36,7 +32,7 @@ export const runLs = async () => {
 
 export const runCat = async (path) => {
   return new Promise(function (resolvePromise, reject) {
-    const stream = createReadStream(resolve(currentDirname.get(), path));
+    const stream = createReadStream(resolve(process.cwd(), path));
     stream.on('data', (chunk) => {
       console.log(chunk.toString());
     });
@@ -50,7 +46,7 @@ export const runCat = async (path) => {
 
 export const runAdd = async (path) => {
   try {
-    await writeFile(resolve(currentDirname.get(), path), '', { flag: 'ax+' });
+    await writeFile(resolve(process.cwd(), path), '', { flag: 'ax+' });
     console.log('file created successfully');
   } catch (error) {
     console.error(`Error create the file: ${error.message}`);
@@ -59,8 +55,8 @@ export const runAdd = async (path) => {
 
 export const runRn = async ([oldPath, newPath]) => {
   try {
-    const oldName = resolve(currentDirname.get(), oldPath);
-    const newName = resolve(currentDirname.get(), newPath);
+    const oldName = resolve(process.cwd(), oldPath);
+    const newName = resolve(process.cwd(), newPath);
     await rename(oldName, newName);
     console.log('file renamed successfully');
   } catch (error) {
@@ -70,9 +66,9 @@ export const runRn = async ([oldPath, newPath]) => {
 
 export const runCp = async ([pathFile, pathDir], showConsole = true) => {
   return new Promise(function (resolvePromise, reject) {
-    const readStream = createReadStream(resolve(currentDirname.get(), pathFile));
+    const readStream = createReadStream(resolve(process.cwd(), pathFile));
     const writeStream = createWriteStream(
-      resolve(currentDirname.get(), pathDir, getNameFile(readStream.path)),
+      resolve(process.cwd(), pathDir, getNameFile(readStream.path)),
     );
     readStream.on('data', (chunk) => {
       writeStream.write(chunk);
@@ -90,7 +86,7 @@ export const runCp = async ([pathFile, pathDir], showConsole = true) => {
 
 export const runRm = async (path, showConsole = true) => {
   try {
-    await rm(resolve(currentDirname.get(), path));
+    await rm(resolve(process.cwd(), path));
     showConsole && console.log('File deleted successfully');
   } catch (error) {
     console.error(`Error delete the file: ${error.message}`);
@@ -138,7 +134,7 @@ export const runOs = async (arg) => {
 
 export const runHash = async (path) => {
   return new Promise(function (resolvePromise, reject) {
-    const readableStream = createReadStream(resolve(currentDirname.get(), path));
+    const readableStream = createReadStream(resolve(process.cwd(), path));
     readableStream.on('data', async (chunk) => {
       console.log(await createHash('sha256').update(chunk).digest('hex'));
     });
@@ -152,9 +148,9 @@ export const runHash = async (path) => {
 
 export const runCompress = async ([filePath, savePath]) => {
   return new Promise(function (resolvePromise, reject) {
-    const readStream = createReadStream(resolve(currentDirname.get(), filePath));
+    const readStream = createReadStream(resolve(process.cwd(), filePath));
     const writeStream = createWriteStream(
-      resolve(currentDirname.get(), savePath, `${getNameFile(filePath)}.br`),
+      resolve(process.cwd(), savePath, `${getNameFile(filePath)}.br`),
     );
     const brotli = createBrotliCompress();
     const stream = readStream.pipe(brotli).pipe(writeStream);
@@ -171,9 +167,9 @@ export const runCompress = async ([filePath, savePath]) => {
 
 export const runDecompress = async ([filePath, savePath]) => {
   return new Promise(function (resolvePromise, reject) {
-    const readStream = createReadStream(resolve(currentDirname.get(), filePath));
+    const readStream = createReadStream(resolve(process.cwd(), filePath));
     const writeStream = createWriteStream(
-      resolve(currentDirname.get(), savePath, getNameFile(filePath).slice(0, -3)),
+      resolve(process.cwd(), savePath, getNameFile(filePath).slice(0, -3)),
     );
     const brotli = createBrotliDecompress();
     const stream = readStream.pipe(brotli).pipe(writeStream);

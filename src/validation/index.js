@@ -1,6 +1,5 @@
 import { stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import CurrentDirectory from '../currentDirectory.js';
 import { CMD, OS_ARGS } from '../settings.js';
 
 const isValidPaths = async (paths, options) => {
@@ -30,8 +29,7 @@ const isDirectory = (directory, stats, path) => {
 
 const isValidPath = async (path, { exist = true, directory = null } = {}) => {
   try {
-    const currentDirname = new CurrentDirectory();
-    const stats = await stat(resolve(currentDirname.get(), path));
+    const stats = await stat(resolve(process.cwd(), path));
     let valid = true;
     if (directory !== null) {
       const args = [directory, stats, path];
