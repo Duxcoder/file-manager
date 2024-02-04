@@ -39,3 +39,6 @@ export const runCat = async (path) => {
     });
   });
 };
+export const runAdd = async (path) => {
+  await writeFile(resolve(currentDirname.get(), path), '', { flag: 'ax+' });
+};
