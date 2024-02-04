@@ -48,3 +48,12 @@ export const runRn = async ([oldPath, newPath]) => {
   await rename(oldName, newName);
   console.log('file renamed successfully');
 };
+export const runCp = async ([pathFile, pathDir]) => {
+  const readStream = createReadStream(resolve(currentDirname.get(), pathFile));
+  const writeStream = createWriteStream(resolve(currentDirname.get(), pathDir, pathFile));
+  readStream.on('data', (chunk) => {
+    writeStream.write(chunk);
+  });
+
+  writeStream.end();
+};
