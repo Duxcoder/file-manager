@@ -87,5 +87,10 @@ export const isValidCommand = async (command, args) => {
       return await isValidOsArg(args);
     case CMD.hash:
       return await isValidPaths(args, [{ exist: true, directory: false }]);
+    case CMD.compress:
+      return await isValidPaths(args, [
+        { exist: true, directory: false },
+        { exist: true, directory: true },
+      ]);
   }
 };
