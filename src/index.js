@@ -21,7 +21,7 @@ import {
 const currentDirname = new CurrentDirectory();
 
 const showCurrentDirectory = () => {
-  console.log(`You are currently in ${currentDirname.get()}`);
+  console.log(`You are currently in ${currentDirname.get()} ${EOL}`);
 };
 
 const initialApplication = () => {

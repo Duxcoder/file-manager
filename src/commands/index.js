@@ -6,6 +6,7 @@ import { dirname, resolve } from 'node:path';
 import { createBrotliCompress, createBrotliDecompress } from 'node:zlib';
 import CurrentDirectory from '../currentDirectory.js';
 import { OS_ARGS } from '../settings.js';
+import { getNameFile } from '../utils/inedx.js';
 
 const currentDirname = new CurrentDirectory();
 
@@ -67,15 +68,17 @@ export const runRn = async ([oldPath, newPath]) => {
   }
 };
 
-export const runCp = async ([pathFile, pathDir]) => {
+export const runCp = async ([pathFile, pathDir], showConsole = true) => {
   return new Promise(function (resolvePromise, reject) {
     const readStream = createReadStream(resolve(currentDirname.get(), pathFile));
-    const writeStream = createWriteStream(resolve(currentDirname.get(), pathDir, pathFile));
+    const writeStream = createWriteStream(
+      resolve(currentDirname.get(), pathDir, getNameFile(readStream.path)),
+    );
     readStream.on('data', (chunk) => {
       writeStream.write(chunk);
     });
     readStream.on('end', () => {
-      console.log('File copied successfully');
+      showConsole && console.log('File copied successfully');
       resolvePromise();
     });
     readStream.on('error', (error) => {
@@ -85,10 +88,10 @@ export const runCp = async ([pathFile, pathDir]) => {
   });
 };
 
-export const runRm = async (path) => {
+export const runRm = async (path, showConsole = true) => {
   try {
     await rm(resolve(currentDirname.get(), path));
-    console.log('File deleted successfully');
+    showConsole && console.log('File deleted successfully');
   } catch (error) {
     console.error(`Error delete the file: ${error.message}`);
   }
@@ -96,8 +99,8 @@ export const runRm = async (path) => {
 
 export const runMv = async ([pathFile, pathDir]) => {
   try {
-    await runCp([pathFile, pathDir]);
-    await runRm(pathFile);
+    await runCp([pathFile, pathDir], false);
+    await runRm(pathFile, false);
     console.log(`File ${pathFile} moved to ${pathDir}`);
   } catch (error) {
     console.error(`Error move the file: ${error.message}`);
@@ -151,7 +154,7 @@ export const runCompress = async ([filePath, savePath]) => {
   return new Promise(function (resolvePromise, reject) {
     const readStream = createReadStream(resolve(currentDirname.get(), filePath));
     const writeStream = createWriteStream(
-      resolve(currentDirname.get(), savePath, `${filePath}.br`),
+      resolve(currentDirname.get(), savePath, `${getNameFile(filePath)}.br`),
     );
     const brotli = createBrotliCompress();
     const stream = readStream.pipe(brotli).pipe(writeStream);
@@ -170,7 +173,7 @@ export const runDecompress = async ([filePath, savePath]) => {
   return new Promise(function (resolvePromise, reject) {
     const readStream = createReadStream(resolve(currentDirname.get(), filePath));
     const writeStream = createWriteStream(
-      resolve(currentDirname.get(), savePath, filePath.slice(0, -3)),
+      resolve(currentDirname.get(), savePath, getNameFile(filePath).slice(0, -3)),
     );
     const brotli = createBrotliDecompress();
     const stream = readStream.pipe(brotli).pipe(writeStream);
