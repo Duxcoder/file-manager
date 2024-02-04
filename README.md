@@ -73,13 +73,7 @@ os --username
 ```
 
 ```
-
-```
-
 os --architecture
-
-```
-
 ```
 
 ```
