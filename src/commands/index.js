@@ -26,3 +26,16 @@ export const runLs = async () => {
   }
   console.table(fileList);
 };
+export const runCat = async (path) => {
+  return new Promise(function (resolvePromise, reject) {
+    const stream = createReadStream(resolve(currentDirname.get(), path));
+    stream.on('data', (chunk) => {
+      console.log(chunk.toString());
+    });
+    stream.on('end', resolvePromise);
+    stream.on('error', () => {
+      console.error(`Error reading the file: ${error.message}`);
+      reject(error);
+    });
+  });
+};
