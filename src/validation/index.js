@@ -92,5 +92,10 @@ export const isValidCommand = async (command, args) => {
         { exist: true, directory: false },
         { exist: true, directory: true },
       ]);
+    case CMD.decompress:
+      return await isValidPaths(args, [
+        { exist: true, directory: false },
+        { exist: true, directory: true },
+      ]);
   }
 };

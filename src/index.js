@@ -15,6 +15,7 @@ import {
   runOs,
   runHash,
   runCompress,
+  runDecompress,
 } from './commands/index.js';
 
 const currentDirname = new CurrentDirectory();
@@ -68,6 +69,9 @@ const runCommand = async (command, args) => {
       break;
     case CMD.compress:
       await runCompress(args);
+      break;
+    case CMD.decompress:
+      await runDecompress(args);
       break;
   }
 };

@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readdir, stat, writeFile, rename, rm } from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { createBrotliCompress } from 'node:zlib';
+import { createBrotliCompress, createBrotliDecompress } from 'node:zlib';
 import CurrentDirectory from '../currentDirectory.js';
 import { OS_ARGS } from '../settings.js';
 
@@ -161,6 +161,25 @@ export const runCompress = async ([filePath, savePath]) => {
     });
     stream.on('error', (error) => {
       console.error(`Error compress the file: ${error.message}`);
+      reject(error);
+    });
+  });
+};
+
+export const runDecompress = async ([filePath, savePath]) => {
+  return new Promise(function (resolvePromise, reject) {
+    const readStream = createReadStream(resolve(currentDirname.get(), filePath));
+    const writeStream = createWriteStream(
+      resolve(currentDirname.get(), savePath, filePath.slice(0, -3)),
+    );
+    const brotli = createBrotliDecompress();
+    const stream = readStream.pipe(brotli).pipe(writeStream);
+    stream.on('finish', () => {
+      console.log('File decompressed successfully ');
+      resolvePromise();
+    });
+    stream.on('error', (error) => {
+      console.error(`Error decompress the file: ${error.message}`);
       reject(error);
     });
   });
