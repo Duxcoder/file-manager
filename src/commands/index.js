@@ -1,7 +1,9 @@
+import * as os from 'node:os';
 import { readdir, stat, writeFile, rename, rm } from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import CurrentDirectory from '../currentDirectory.js';
+import { OS_ARGS } from '../settings.js';
 
 const currentDirname = new CurrentDirectory();
 
@@ -62,4 +64,31 @@ export const runRm = async (path) => {
 export const runMv = async ([pathFile, pathDir]) => {
   await runCp([pathFile, pathDir]);
   await runRm(pathFile);
+};
+const showCpus = () => {
+  const cpus = os.cpus();
+  const CPUS = cpus.length;
+  console.log(`All CPUs: ${CPUS}`);
+  cpus.forEach((cpu, i) => {
+    console.log(`CPU #${i + 1}: model ${cpu.model} with ${cpu.speed} GHz`);
+  });
+};
+export const runOs = async (arg) => {
+  switch (arg) {
+    case OS_ARGS.eol:
+      console.log(`EOL: ${os.EOL}`);
+      break;
+    case OS_ARGS.cpus:
+      showCpus();
+      break;
+    case OS_ARGS.homedir:
+      console.log(`Homedir: ${os.homedir()}`);
+      break;
+    case OS_ARGS.username:
+      console.log(`Username: ${os.userInfo().username}`);
+      break;
+    case OS_ARGS.architecture:
+      console.log(`Architecture: ${os.arch()}`);
+      break;
+  }
 };

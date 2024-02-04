@@ -14,4 +14,12 @@ export const CMD = {
   decompress: 'decompress',
 };
 
+export const OS_ARGS = {
+  eol: '--EOL',
+  cpus: '--cpus',
+  homedir: '--homedir',
+  username: '--username',
+  architecture: '--architecture',
+};
+
 export const USERNAME = process.argv.find((arg) => arg.startsWith('--username')).split('=')[1];

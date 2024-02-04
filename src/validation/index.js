@@ -1,7 +1,7 @@
 import { stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import CurrentDirectory from '../currentDirectory.js';
-import { CMD } from '../settings.js';
+import { CMD, OS_ARGS } from '../settings.js';
 
 const isValidPaths = async (paths, options) => {
   if (paths.length !== options.length) return false;
@@ -48,6 +48,13 @@ const isValidPath = async (path, { exist = true, directory = null } = {}) => {
   }
 };
 
+const isValidOsArg = async (args) => {
+  if (args.length !== 1) return false;
+  const [arg] = args;
+  if (!Object.values(OS_ARGS).includes(arg)) return false;
+  return true;
+};
+
 export const isValidCommand = async (command, args) => {
   const commands = Object.values(CMD);
   if (!commands.includes(command)) return false;
@@ -76,5 +83,7 @@ export const isValidCommand = async (command, args) => {
       ]);
     case CMD.rm:
       return await isValidPaths(args, [{ exist: true, directory: false }]);
+    case CMD.os:
+      return await isValidOsArg(args);
   }
 };

@@ -12,6 +12,7 @@ import {
   runCp,
   runMv,
   runRm,
+  runOs,
 } from './commands/index.js';
 
 const currentDirname = new CurrentDirectory();
@@ -56,6 +57,9 @@ const runCommand = async (command, args) => {
       break;
     case CMD.rm:
       await runRm(args[0]);
+      break;
+    case CMD.os:
+      await runOs(args[0]);
       break;
   }
 };
