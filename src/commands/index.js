@@ -42,3 +42,9 @@ export const runCat = async (path) => {
 export const runAdd = async (path) => {
   await writeFile(resolve(currentDirname.get(), path), '', { flag: 'ax+' });
 };
+export const runRn = async ([oldPath, newPath]) => {
+  const oldName = resolve(currentDirname.get(), oldPath);
+  const newName = resolve(currentDirname.get(), newPath);
+  await rename(oldName, newName);
+  console.log('file renamed successfully');
+};
